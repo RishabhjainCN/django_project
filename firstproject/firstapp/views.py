@@ -6,8 +6,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 import json
 
-from .models import projectuser, person, project
+from rest_framework.decorators import api_view
 
+from .models import projectuser, person, project
 
 @csrf_exempt
 @require_http_methods("POST")
@@ -21,7 +22,7 @@ def createuser(request):
 @require_http_methods("POST")
 def createproj(request):
     jsondata = json.loads(request.body.decode('utf-8'))
-    instance = project(name = jsondata.get('n                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               ame'))
+    instance = project(name = jsondata.get('name'))
     instance.save()
     return HttpResponse(status = '201')
 
@@ -44,23 +45,26 @@ def assignmentor(request):
 
 @csrf_exempt
 @require_http_methods("GET")
-def getmentees(request):
-    jsondata = json.loads(request.body.decode('utf-8'))
-    user = person.objects.get(id = jsondata['user'])
+def getmentees(request,userid):
+    user = person.objects.get(id = userid)
     projuser = projectuser.objects.filter(u_id = user, is_mentor = True).values_list('id',flat = True)
-    mentors = []
+    projects = set({})
     for pu in projuser:
-        if projectuser.objects.get(id = pu).is_mentor == False:
-            mentors.append(projectuser.objects.get(id = pu).u_id.name)
+        projects.add(projectuser.objects.get(id=pu).p_id)
+    mentors = []
+    for p in projects:
+        mentors += projectuser.objects.filter(p_id = p, is_mentor = False).values_list('u_id',flat = True)
+    _mentors = []
+    for i in mentors:
+        _mentors.append(person.objects.get(id=i).name)
     returndata = {}
-    returndata['result'] = mentors
+    returndata['result'] = _mentors
     return HttpResponse(json.dumps(returndata), content_type = 'text/json')
 
 @csrf_exempt
 @require_http_methods("GET")
-def getprojs(request):
-    jsondata = json.loads(request.body.decode('utf-8'))
-    user = person.objects.get(id=jsondata['user'])
+def getprojs(request,userid):
+    user = person.objects.get(id=userid)
     projuser = projectuser.objects.filter(u_id=user, is_mentor=True).values_list('id', flat=True)
     projects = []
     for i in projuser:
@@ -71,14 +75,12 @@ def getprojs(request):
 
 @csrf_exempt
 @require_http_methods("GET")
-def getusers(request):
-    jsondata = json.loads(request.body.decode('utf-8'))
-    proj = project.objects.get(id=jsondata['proj'])
+def getusers(request,projid):
+    proj = project.objects.get(id=projid)
     projuser = projectuser.objects.filter(p_id=proj, is_mentor = False).values_list('id', flat=True)
     users = []
     for i in projuser:
         users.append(projectuser.objects.get(id = i).u_id.name)
-    mentors = []
     projuser = projectuser.objects.filter(p_id=proj, is_mentor=True).values_list('id', flat=True)
     mentors = []
     for i in projuser:

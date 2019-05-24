@@ -6,7 +6,7 @@ urlpatterns = [
     path('proj/',createproj,name = 'proj'),
     path('assignproj/',assignproj,name = 'assignproj'),
     path('assignmentor/',assignmentor,name = 'assignproj'),
-    path('getmentees/',getmentees,name = 'getmentees'),
-    path('getprojs/',getprojs,name = 'getprojs'),
-   path('getusers/',getusers,name = 'getusers')
+    path('getmentees/<int:userid>/',getmentees,name = 'getmentees'),
+    path('getprojs/<int:userid>/',getprojs,name = 'getprojs'),
+    path('getusers/<int:projid>/',getusers,name = 'getusers')
 ]

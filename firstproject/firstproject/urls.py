@@ -15,8 +15,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-import firstapp
+from rest_framework_swagger.views import get_swagger_view
+
+docview = get_swagger_view(title = "My Documentation")
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('firstapp/',include('firstapp.urls'))
+    path('firstapp/',include('firstapp.urls')),
+    path('Documentation/', docview)
 ]
