@@ -10,6 +10,6 @@ COPY firstproject/requirements.txt /firstproject/
 RUN pip install -r requirements.txt
 COPY python-flask-server/requirements.txt /firstproject/
 RUN pip install -r requirements.txt
-COPY firstproject/ /firstproject/
+COPY /firstproject/ /firstproject/
 RUN chmod u+x Entrypoint.sh
 CMD sh Entrypoint.sh
