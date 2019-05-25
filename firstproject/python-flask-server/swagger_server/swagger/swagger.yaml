@@ -4,7 +4,7 @@ info:
   description: "A Simple API for Projects management"
   version: "v1"
   title: "Projects"
-host: "127.0.0.1:4000"
+host: "try.public.cy.devfactory.com"
 schemes:
 - "http"
 paths:
