@@ -8,86 +8,101 @@ import json
 
 from rest_framework.decorators import api_view
 
-from .models import projectuser, person, project
+from .models import project_user, person, project
+
+def errorhandling(func):
+	def func_wrapper(*args, **kwargs):
+		try:
+			return func(*args,**kwargs)
+		except Exception as ex:
+			return HttpResponse(ex)
+	return func_wrapper
 
 @csrf_exempt
 @require_http_methods("POST")
-def createuser(request):
-    jsondata = json.loads(request.body.decode('utf-8'))
-    instance = person(name = jsondata.get('name'))
+@errorhandling
+def users(request):
+    json_data = json.loads(request.body.decode('utf-8'))
+    instance = person(name = json_data.get('name')+"")
     instance.save()
-    return HttpResponse(status = '201')
+    return HttpResponse(status = '200')
 
 @csrf_exempt
 @require_http_methods("POST")
-def createproj(request):
-    jsondata = json.loads(request.body.decode('utf-8'))
-    instance = project(name = jsondata.get('name'))
+@errorhandling
+def projects(request):
+    json_data = json.loads(request.body.decode('utf-8'))
+    instance = project(name = json_data.get('name')+"")
     instance.save()
-    return HttpResponse(status = '201')
+    return HttpResponse(status = '200')
 
 @csrf_exempt
 @require_http_methods("POST")
-def assignproj(request):
-    jsondata = json.loads(request.body.decode('utf-8'))
-    for userid in jsondata['users']:
-        instance = projectuser(p_id = project.objects.get(id = jsondata['proj']), u_id = person.objects.get(id = userid), is_mentor = False)
+@errorhandling
+def project_users(request):
+    json_data = json.loads(request.body.decode('utf-8'))
+    for user_id in json_data['users']:
+        instance = project_user(p_id = project.objects.get(id = json_data['proj']+0) , u_id = person.objects.get(id = user_id+0), is_mentor = False)
         instance.save()
-    return HttpResponse(status = 201)
+    return HttpResponse(status = '200')
 
 @csrf_exempt
 @require_http_methods("POST")
-def assignmentor(request):
-    jsondata = json.loads(request.body.decode('utf-8'))
-    instance = projectuser(p_id = project.objects.get(id = jsondata['projid']), u_id = person.objects.get(id = jsondata['mentorid']), is_mentor = True)
+@errorhandling
+def project_mentor(request):
+    json_data = json.loads(request.body.decode('utf-8'))
+    instance = project_user(p_id = project.objects.get(id = json_data['projid']+0), u_id = person.objects.get(id = json_data['mentorid']+0), is_mentor = True)
     instance.save()
-    return HttpResponse(status = 201)
+    return HttpResponse(status = '200')
 
 @csrf_exempt
 @require_http_methods("GET")
-def getmentees(request,userid):
-    user = person.objects.get(id = userid)
-    projuser = projectuser.objects.filter(u_id = user, is_mentor = True).values_list('id',flat = True)
-    projects = set({})
-    for pu in projuser:
-        projects.add(projectuser.objects.get(id=pu).p_id)
-    mentors = []
-    for p in projects:
-        mentors += projectuser.objects.filter(p_id = p, is_mentor = False).values_list('u_id',flat = True)
-    _mentors = []
-    for i in mentors:
-        _mentors.append(person.objects.get(id=i).name)
-    returndata = {}
-    returndata['result'] = _mentors
-    return HttpResponse(json.dumps(returndata), content_type = 'text/json')
+@errorhandling
+def mentees(request,user_id):
+    user_id = person.objects.get(id = user_id+0)
+    proj_users_id = project_user.objects.filter(u_id = user_id, is_mentor = True).values_list('id',flat = True)
+    projects_id = set({})
+    for proj_user in proj_users_id:
+        projects_id.add(project_user.objects.get(id=proj_user).p_id)
+    mentors_id = []
+    for project_id in projects_id:
+        mentors_id += project_user.objects.filter(p_id = project_id, is_mentor = False).values_list('u_id',flat = True)
+    mentors_name_id = []
+    for mentor_id in mentors_id:
+        mentors_name_id.append((person.objects.get(id=mentor_id).name, mentor_id))
+    return_data = {}
+    return_data['result'] = mentors_name_id
+    return HttpResponse(json.dumps(return_data), content_type = 'text/json')
 
 @csrf_exempt
 @require_http_methods("GET")
-def getprojs(request,userid):
-    user = person.objects.get(id=userid)
-    projuser = projectuser.objects.filter(u_id=user, is_mentor=True).values_list('id', flat=True)
-    projects = []
-    for i in projuser:
-        projects.append(projectuser.objects.get(id = i).p_id.name)
-    returndata = {}
-    returndata['results'] = projects
-    return HttpResponse(json.dumps(returndata), content_type = 'text/json')
+@errorhandling
+def user_projects(request,user_id):
+    user = person.objects.get(id=user_id+0)
+    proj_users = project_user.objects.filter(u_id=user, is_mentor=True).values_list('id', flat=True)
+    projects_name_id = []
+    for proj_user in proj_users:
+        projects_name_id.append((project_user.objects.get(id = proj_user).p_id.name,project_user.objects.get(id = proj_user).p_id.id))
+    return_data = {}
+    return_data['results'] = projects_name_id
+    return HttpResponse(json.dumps(return_data), content_type = 'text/json')
 
 @csrf_exempt
 @require_http_methods("GET")
-def getusers(request,projid):
-    proj = project.objects.get(id=projid)
-    projuser = projectuser.objects.filter(p_id=proj, is_mentor = False).values_list('id', flat=True)
-    users = []
-    for i in projuser:
-        users.append(projectuser.objects.get(id = i).u_id.name)
-    projuser = projectuser.objects.filter(p_id=proj, is_mentor=True).values_list('id', flat=True)
-    mentors = []
-    for i in projuser:
-        mentors.append(projectuser.objects.get(id=i).u_id.name)
+@errorhandling
+def project_users_mentors(request,proj_id):
+    proj = project.objects.get(id=proj_id+0)
+    proj_users = project_user.objects.filter(p_id=proj, is_mentor = False).values_list('id', flat=True)
+    users_name_id = []
+    for proj_user in proj_users:
+        users_name_id.append((project_user.objects.get(id = proj_user).u_id.name,project_user.objects.get(id = proj_user).u_id.id))
+    proj_users = project_user.objects.filter(p_id=proj, is_mentor=True).values_list('id', flat=True)
+    mentors_name_id = []
+    for proj_user in proj_users:
+        mentors_name_id.append((project_user.objects.get(id=proj_user).u_id.name,project_user.objects.get(id=proj_user).u_id.id))
 
-    returndata = {}
-    returndata['users'] = users
-    returndata['mentors'] = mentors
-    return HttpResponse(json.dumps(returndata), content_type='text/json')
+    return_data = {}
+    return_data['users'] = users_name_id
+    return_data['mentors'] = mentors_name_id
+    return HttpResponse(json.dumps(return_data), content_type='text/json')
 

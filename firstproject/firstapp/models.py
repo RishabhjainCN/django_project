@@ -13,7 +13,7 @@ class project(models.Model):
     def __str__(self):
         return self.name
 
-class projectuser(models.Model):
+class project_user(models.Model):
     p_id = models.ForeignKey(project, on_delete= models.CASCADE)
     u_id = models.ForeignKey(person, on_delete=models.CASCADE)
     is_mentor = models.BooleanField(default= False)

@@ -1,0 +1,139 @@
+---
+swagger: "2.0"
+info:
+  description: "A Simple API for Projects management"
+  version: "v1"
+  title: "Projects"
+host: "127.0.0.1:4000"
+schemes:
+- "http"
+paths:
+  /firstapp/user/:
+    post:
+      summary: "create new user"
+      operationId: "firstapp_user_post"
+      parameters:
+      - in: "body"
+        name: "name"
+        description: "this is name of user created"
+        required: false
+        schema:
+          $ref: "#/definitions/user"
+      responses:
+        200:
+          description: "success"
+      x-swagger-router-controller: "swagger_server.controllers.default_controller"
+  /firstapp/project/:
+    post:
+      summary: "create new project"
+      operationId: "firstapp_project_post"
+      parameters:
+      - in: "body"
+        name: "project"
+        description: "this is name of project created"
+        required: false
+        schema:
+          $ref: "#/definitions/proj"
+      responses:
+        200:
+          description: "success"
+      x-swagger-router-controller: "swagger_server.controllers.default_controller"
+  /firstapp/project_user/:
+    post:
+      summary: "assign project to users"
+      operationId: "firstapp_project_user_post"
+      parameters:
+      - in: "body"
+        name: "projectid_and_usersid"
+        description: "this is ids of users to whom project has to be assigned"
+        required: false
+        schema:
+          $ref: "#/definitions/assignproj"
+      responses:
+        200:
+          description: "success"
+      x-swagger-router-controller: "swagger_server.controllers.default_controller"
+  /firstapp/project_mentor/:
+    post:
+      summary: "assign mentor to a project"
+      operationId: "firstapp_project_mentor_post"
+      parameters:
+      - in: "body"
+        name: "mentorid_and_projectid"
+        description: "this is ids of project and mentor"
+        required: false
+        schema:
+          $ref: "#/definitions/assignmentor"
+      responses:
+        200:
+          description: "success"
+      x-swagger-router-controller: "swagger_server.controllers.default_controller"
+  /firstapp/mentees/{user_id}/:
+    get:
+      summary: "get mentees of a given mentor"
+      operationId: "firstapp_mentees_user_id_get"
+      parameters:
+      - name: "user_id"
+        in: "path"
+        description: "this is id of mentor whose mentees has to be printed"
+        required: true
+        type: "integer"
+      responses:
+        200:
+          description: "success"
+      x-swagger-router-controller: "swagger_server.controllers.default_controller"
+  /firstapp/user_projects/{user_id}/:
+    get:
+      summary: "get projects of given user"
+      operationId: "firstapp_user_projects_user_id_get"
+      parameters:
+      - name: "user_id"
+        in: "path"
+        description: "this is id of user whose project has to be displayed"
+        required: true
+        type: "integer"
+      responses:
+        200:
+          description: "success"
+      x-swagger-router-controller: "swagger_server.controllers.default_controller"
+  /firstapp/project_users_mentors/{proj_id}/:
+    get:
+      summary: "get users and mentors of given project"
+      operationId: "firstapp_project_users_mentors_proj_id_get"
+      parameters:
+      - name: "proj_id"
+        in: "path"
+        description: "this is id of project whose users and mentors has to be displayed"
+        required: true
+        type: "integer"
+      responses:
+        201:
+          description: "success"
+      x-swagger-router-controller: "swagger_server.controllers.default_controller"
+definitions:
+  user:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+  proj:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+  assignproj:
+    type: "object"
+    properties:
+      users:
+        type: "array"
+        items:
+          type: "integer"
+      proj:
+        type: "integer"
+  assignmentor:
+    type: "object"
+    properties:
+      mentorid:
+        type: "integer"
+      projid:
+        type: "integer"

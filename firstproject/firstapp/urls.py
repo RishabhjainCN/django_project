@@ -2,11 +2,11 @@
 from django.urls import path
 from .views import *
 urlpatterns = [
-    path('user/',createuser,name = 'user'),
-    path('proj/',createproj,name = 'proj'),
-    path('assignproj/',assignproj,name = 'assignproj'),
-    path('assignmentor/',assignmentor,name = 'assignproj'),
-    path('getmentees/<int:userid>/',getmentees,name = 'getmentees'),
-    path('getprojs/<int:userid>/',getprojs,name = 'getprojs'),
-    path('getusers/<int:projid>/',getusers,name = 'getusers')
+    path('user/',users,name = 'user'),
+    path('project/',projects,name = 'proj'),
+    path('project_user/',project_users,name = 'assignproj'),
+    path('project_mentor/',project_mentor,name = 'assignproj'),
+    path('mentees/<int:user_id>/',mentees,name = 'getmentees'),
+    path('user_projects/<int:user_id>/',user_projects,name = 'getprojs'),
+    path('project_users_mentors/<int:proj_id>/',project_users_mentors,name = 'getusers')
 ]
