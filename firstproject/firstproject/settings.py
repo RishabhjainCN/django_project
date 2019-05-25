@@ -26,7 +26,7 @@ SECRET_KEY = ')d+bq1-0p%d7gn+p9ayt*7@ou=_r(u4-quzgg46$u5qak*!jt$'
 DEBUG = True
 
 ALLOWED_HOSTS = [
-'http://try.public.cy.devfactory.com'
+'try.public.cy.devfactory.com'
 ]
 
 
