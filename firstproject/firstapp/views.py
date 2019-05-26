@@ -59,46 +59,27 @@ def project_mentor(request):
 @require_http_methods("GET")
 @errorhandling
 def mentees(request,user_id):
-    user_id = person.objects.get(id = user_id+0)
-    proj_users_id = project_user.objects.filter(u_id = user_id, is_mentor = True).values_list('id',flat = True)
-    projects_id = project_user.objects.filter(id__in = proj_users_id).values_list('p_id',flat = True)
+    projects_id = project_user.objects.filter(u_id = user_id, is_mentor = True).values_list('p_id',flat = True)
     mentees_id = project_user.objects.filter(p_id__in = projects_id,is_mentor = False).values_list('u_id',flat = True)
-    mentees_name_id = []
-    for mentee_id in mentees_id:
-        mentees_name_id.append((person.objects.get(id = mentee_id).name, mentee_id))
-    return_data = {}
-    return_data['result'] = mentees_name_id
+    return_data = {'result' : list(person.objects.filter(id__in = mentees_id).values_list())}
     return HttpResponse(json.dumps(return_data), content_type = 'text/json')
 
 @csrf_exempt
 @require_http_methods("GET")
 @errorhandling
 def user_projects(request,user_id):
-    user = person.objects.get(id=user_id+0)
-    proj_users = project_user.objects.filter(u_id=user, is_mentor=True).values_list('id', flat=True)
-    projects_name_id = []
-    for proj_user in proj_users:
-        projects_name_id.append((project_user.objects.get(id = proj_user).p_id.name,project_user.objects.get(id = proj_user).p_id.id))
-    return_data = {}
-    return_data['results'] = projects_name_id
+    proj_ids = list(project_user.objects.filter(u_id = user_id).values_list('p_id',flat = True))
+    return_data = {'results' : list(project.objects.filter(id__in = proj_ids).values_list())}
     return HttpResponse(json.dumps(return_data), content_type = 'text/json')
 
 @csrf_exempt
 @require_http_methods("GET")
 @errorhandling
 def project_users_mentors(request,proj_id):
-    proj = project.objects.get(id=proj_id+0)
-    proj_users = project_user.objects.filter(p_id=proj, is_mentor = False).values_list('id', flat=True)
-    users_name_id = []
-    for proj_user in proj_users:
-        users_name_id.append((project_user.objects.get(id = proj_user).u_id.name,project_user.objects.get(id = proj_user).u_id.id))
-    proj_users = project_user.objects.filter(p_id=proj, is_mentor=True).values_list('id', flat=True)
-    mentors_name_id = []
-    for proj_user in proj_users:
-        mentors_name_id.append((project_user.objects.get(id=proj_user).u_id.name,project_user.objects.get(id=proj_user).u_id.id))
-
+    users_ids = list(project_user.objects.filter(p_id = proj_id, is_mentor = False).values_list('u_id',flat = True))
+    mentors_ids = list(project_user.objects.filter(p_id = proj_id, is_mentor = True).values_list('u_id',flat = True))
     return_data = {}
-    return_data['users'] = users_name_id
-    return_data['mentors'] = mentors_name_id
+    return_data['users'] = list(person.objects.filter(id__in = users_ids).values_list())
+    return_data['mentors'] = list(person.objects.filter(id__in = mentors_ids).values_list())
     return HttpResponse(json.dumps(return_data), content_type='text/json')
 
