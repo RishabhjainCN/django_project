@@ -23,7 +23,7 @@ def errorhandling(func):
 @errorhandling
 def users(request):
     json_data = json.loads(request.body.decode('utf-8'))
-    instance = person(name = json_data.get('name')+"")
+    instance = person(name = json_data.get('name'))
     instance.save()
     return HttpResponse(status = '200')
 
@@ -61,17 +61,13 @@ def project_mentor(request):
 def mentees(request,user_id):
     user_id = person.objects.get(id = user_id+0)
     proj_users_id = project_user.objects.filter(u_id = user_id, is_mentor = True).values_list('id',flat = True)
-    projects_id = set({})
-    for proj_user in proj_users_id:
-        projects_id.add(project_user.objects.get(id=proj_user).p_id)
-    mentors_id = []
-    for project_id in projects_id:
-        mentors_id += project_user.objects.filter(p_id = project_id, is_mentor = False).values_list('u_id',flat = True)
-    mentors_name_id = []
-    for mentor_id in mentors_id:
-        mentors_name_id.append((person.objects.get(id=mentor_id).name, mentor_id))
+    projects_id = project_user.objects.filter(id__in = proj_users_id).values_list('p_id',flat = True)
+    mentees_id = project_user.objects.filter(p_id__in = projects_id,is_mentor = False).values_list('u_id',flat = True)
+    mentees_name_id = []
+    for mentee_id in mentees_id:
+        mentees_name_id.append((person.objects.get(id = mentee_id).name, mentee_id))
     return_data = {}
-    return_data['result'] = mentors_name_id
+    return_data['result'] = mentees_name_id
     return HttpResponse(json.dumps(return_data), content_type = 'text/json')
 
 @csrf_exempt
