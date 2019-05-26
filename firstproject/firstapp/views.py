@@ -23,7 +23,7 @@ def errorhandling(func):
 @errorhandling
 def users(request):
     json_data = json.loads(request.body.decode('utf-8'))
-    instance = person(name = json_data.get('name'))
+    instance = person(name = json_data.get('name' + ""))
     instance.save()
     return HttpResponse(status = '200')
 
@@ -59,7 +59,7 @@ def project_mentor(request):
 @require_http_methods("GET")
 @errorhandling
 def mentees(request,user_id):
-    projects_id = project_user.objects.filter(u_id = user_id, is_mentor = True).values_list('p_id',flat = True)
+    projects_id = project_user.objects.filter(u_id = user_id+0, is_mentor = True).values_list('p_id',flat = True)
     mentees_id = project_user.objects.filter(p_id__in = projects_id,is_mentor = False).values_list('u_id',flat = True)
     return_data = {'result' : list(person.objects.filter(id__in = mentees_id).values_list())}
     return HttpResponse(json.dumps(return_data), content_type = 'text/json')
@@ -68,7 +68,7 @@ def mentees(request,user_id):
 @require_http_methods("GET")
 @errorhandling
 def user_projects(request,user_id):
-    proj_ids = list(project_user.objects.filter(u_id = user_id).values_list('p_id',flat = True))
+    proj_ids = list(project_user.objects.filter(u_id = user_id+0).values_list('p_id',flat = True))
     return_data = {'results' : list(project.objects.filter(id__in = proj_ids).values_list())}
     return HttpResponse(json.dumps(return_data), content_type = 'text/json')
 
@@ -76,7 +76,7 @@ def user_projects(request,user_id):
 @require_http_methods("GET")
 @errorhandling
 def project_users_mentors(request,proj_id):
-    users_ids = list(project_user.objects.filter(p_id = proj_id, is_mentor = False).values_list('u_id',flat = True))
+    users_ids = list(project_user.objects.filter(p_id = proj_id+0, is_mentor = False).values_list('u_id',flat = True))
     mentors_ids = list(project_user.objects.filter(p_id = proj_id, is_mentor = True).values_list('u_id',flat = True))
     return_data = {}
     return_data['users'] = list(person.objects.filter(id__in = users_ids).values_list())
